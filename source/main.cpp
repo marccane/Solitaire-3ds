@@ -81,7 +81,7 @@ Joc inicialitzar_joc(sf2d_texture *c[]){
 }
 
 void Carregar_Cartes(sf2d_texture *c[]){
-	string davant="data/", darrera=".png", nom;
+	string davant="gamedata/", darrera=".png", nom;
 	for(int i=0;i<53;i++){
 		stringstream ss;
 		ss<<i+1;
