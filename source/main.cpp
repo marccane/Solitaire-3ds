@@ -20,16 +20,19 @@ Posicio_Carta Localitzar_Carta(touchPosition t, Joc &joc);
 
 int main()
 {	
-	///aptInit(); 
-	srand(time(NULL));
+	aptInit();
+	srvInit();
+	hidInit();
+	ndspInit();	
 	sf2d_init();
 	sf2d_set_clear_color(RGBA8(0x40, 0xFF, 0x40, 0xFF));
 	sf2d_set_3D(false);
+	srand(time(NULL));
 	consoleInit(GFX_TOP, NULL);
-	
-	bool touchframeanterior=false, acciofeta=false;
 	sf2d_texture* cartes[53]; //+1 pel darrera de la carta
 	Carregar_Cartes(cartes);
+	bool touchframeanterior=false, acciofeta=false;
+	
 	Joc joc=inicialitzar_joc(cartes);
 	Posicio_Carta origen, desti;
 	touchPosition touch;
@@ -63,6 +66,10 @@ int main()
 	}
 	for(int i=0;i<53;i++)sf2d_free_texture(cartes[i]);
 	sf2d_fini();
+	ndspExit();
+	hidExit();
+	srvExit();
+	aptExit();
 	return 0;
 }
 
@@ -80,7 +87,7 @@ void Carregar_Cartes(sf2d_texture *c[]){
 		ss<<i+1;
 		nom=davant+ss.str()+darrera;
 		cout<<"Carregant: "<<ss.str()+darrera<<" ...";
-		c[i]=sfil_load_PNG_file(nom.c_str(), SF2D_PLACE_VRAM);
+		c[i]=sfil_load_PNG_file(nom.c_str(), SF2D_PLACE_RAM);
 		cout<<"OK"<<endl;
 	}
 }

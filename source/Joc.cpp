@@ -4,6 +4,9 @@
 #include "Carta.h"
 #include <3ds.h>
 #include "Constants.h"
+#include <iostream>
+
+using namespace std;
 
 Joc::Joc(Baralla a)
 {
@@ -20,11 +23,17 @@ Joc::Joc(Baralla a)
 }
 
 void Joc::mostrar(const touchPosition &t){
+	int acabades = 0;
 	for(int i=0;i<4;i++)
-        a_pals[i].Mostrar_Cim_Pila();
+	{
+		if(a_pals[i].cim().EsRei())acabades++;
+		a_pals[i].Mostrar_Cim_Pila();
+	}
     a_ma.Mostrar_Cim_Pila();
     a_descartades.Mostrar_Cim_Pila();
 	a_tauler.mostrar(t);
+	if(acabades==4)cout<<"HAS GUANIAO, KILLO"<<endl;
+	
 }
 
 void Joc::NumCartesColumna(int col, int &obertes, int &tancades){
