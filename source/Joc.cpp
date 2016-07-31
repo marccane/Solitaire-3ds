@@ -1,14 +1,10 @@
 #include "Joc.h"
-#include "PilaCartes.h"
-#include "Tauler.h"
-#include "Carta.h"
-#include <3ds.h>
 #include "Constants.h"
 #include <iostream>
 
 using namespace std;
 
-Joc::Joc(Baralla a)
+Joc::Joc(int llavor, sf2d_texture *c[])
 {
     a_guanyada=false;
 	for(int i=0;i<4;i++){
@@ -18,30 +14,25 @@ Joc::Joc(Baralla a)
 	a_ma.a_x=margeD;
 	a_descartades.a_y=a_ma.a_y=margeA;
 	a_descartades.a_x=margeD+Card_Width+margeE;
-    a_tauler.repartir(a);
-    emplenar_ma(a);
+	Baralla baralla(llavor, c);
+    a_tauler.repartir(baralla);
+    emplenar_ma(baralla);
 }
 
 void Joc::mostrar(const touchPosition &t){
-	int acabades = 0;
 	for(int i=0;i<4;i++)
-	{
-		if(a_pals[i].cim().EsRei())acabades++;
 		a_pals[i].Mostrar_Cim_Pila();
-	}
     a_ma.Mostrar_Cim_Pila();
     a_descartades.Mostrar_Cim_Pila();
 	a_tauler.mostrar(t);
-	if(acabades==4)cout<<"HAS GUANIAO, KILLO"<<endl;
-	
 }
 
-void Joc::NumCartesColumna(int col, int &obertes, int &tancades){
+void Joc::NumCartesColumna(int col, int &obertes, int &tancades)const{
 	a_tauler.NumCartesColumna(col,obertes,tancades);
 }
 
 void Joc::Processar_origen(Posicio_Carta origen){ //array de referencies?? //referenccies a punters?
-	static const PilaCartes *llista[]={&a_ma,&a_descartades,&a_pals[0],&a_pals[1],&a_pals[2],&a_pals[3]};
+	static PilaCartes *llista[]={&a_ma,&a_descartades,&a_pals[0],&a_pals[1],&a_pals[2],&a_pals[3]};
 	Carta temp;
 	if(origen.alapila and !llista[origen.pila]->buida()) //and llista[origen.pila]->cim().esoberta()
 		temp=llista[origen.pila]->cim();
@@ -137,8 +128,7 @@ void Joc::Accio(Posicio_Carta origen, Posicio_Carta desti, bool &acciofeta){
 			break;
 		case 4:
 			col=origen.columna; fila=origen.fila; col_d=desti.columna;
-			if(a_tauler.Get_Carta_Tauler(col,fila).esoberta()){
-				c_origen=a_tauler.Get_Carta_Tauler(col,fila);
+			if(a_tauler.Mida_Col(col)>0 and (c_origen=a_tauler.Get_Carta_Tauler(col,fila)).esoberta())
 				if(a_tauler.Get_Carta_Tauler(col_d).Casen(c_origen) or (c_origen.EsRei() and a_tauler.Mida_Col(col_d)==0)){
 					const int limit=a_tauler.Mida_Col(col);
 					for(int i=fila;i<=limit;i++){
@@ -148,17 +138,14 @@ void Joc::Accio(Posicio_Carta origen, Posicio_Carta desti, bool &acciofeta){
 					a_tauler.Obrir_ultima(col);
 				}
 				else acciofeta=false; //cout<<"LA CARTA NO ES POT POSAR A LA COLUMNA "<<col_d<<endl;
-			}
 			else acciofeta=false; //cout<<"LA CARTA NO ES POT MOURE"<<endl;
 			break;
 		case 5:
 			col=origen.columna;
-			if(a_tauler.Mida_Col(col)>0)
-				if(PosarALaPila(a_tauler.Get_Carta_Tauler(col))){
-					a_tauler.Treure_Carta(col);
-					a_tauler.Obrir_ultima(col);
-				}
-				else acciofeta=false; //cout<<"LA CARTA NO ES POT APILAR"<<endl;
+			if(a_tauler.Mida_Col(col)>0 and PosarALaPila(a_tauler.Get_Carta_Tauler(col))){
+				a_tauler.Treure_Carta(col);
+				a_tauler.Obrir_ultima(col);
+			}
 			else acciofeta=false; //cout<<"LA CARTA NO ES POT APILAR"<<endl;
 			break;
 		case 6:
@@ -176,4 +163,36 @@ void Joc::Accio(Posicio_Carta origen, Posicio_Carta desti, bool &acciofeta){
 			break;
 	}
 	a_guanyada=Partida_Guanyada();
+}
+
+Posicio_Carta Joc::Localitzar_Carta(touchPosition t)const{
+	Posicio_Carta resultat;
+	if(t.py<(margeA+Card_Height+margeB)){
+		resultat.alapila=true;
+		if(t.px<margeD+Card_Width*2+margeE*2)
+			resultat.pila=t.px/(margeD+Card_Width+(margeE/2));
+		else{
+			const int tpx=320-t.px-(margeD-margeE/2), temp=5-tpx/(margeE+Card_Width);
+			resultat.pila=(temp<2?2:temp);
+		}
+	}
+	else{
+		resultat.alapila=false;
+		int migmarge=margeD/2, tpx=t.px-migmarge, unitat=margeD+Card_Width;
+		resultat.columna=(tpx/unitat)+1; //seguim la convencio de la notació de columnes de lusuari i no pas la de les dades
+		int tpy=t.py-margeA-Card_Height-margeB, numtancades, numobertes;
+		NumCartesColumna(resultat.columna, numobertes, numtancades);
+		resultat.fila=(tpy/MPL)+1;
+		if(resultat.fila>numtancades){
+			const int total=numobertes+numtancades;
+			tpy-=MPL*numtancades;
+			resultat.fila=(tpy/MOS)+1;
+			resultat.fila+=numtancades;
+			if(resultat.fila>total)
+				resultat.fila=total;
+		}
+	}
+	if(resultat.alapila)cout<<"pila="<<resultat.pila<<endl;
+	else cout<<"col="<<resultat.columna<<" fila="<<resultat.fila<<endl;
+	return resultat;
 }

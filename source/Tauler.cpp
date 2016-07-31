@@ -66,14 +66,8 @@ int Tauler::Mida_Col(int col)const{
     return a_mida[col-1];
 }
 
-void Tauler::Treure_Carta(int col, int quant){ //possible bug: si fem una Accio() pot xafarnos valors que no toquen... //fixed? //massa lleig? //cal?
-    if(quant==-1)
-		a_mida[col-1]--;
-	else{
-		a_mida[col-1]-=quant;
-		a_col_rest=col;
-		a_quantitat=quant;
-	}
+void Tauler::Treure_Carta(int col){
+	a_mida[col-1]--;
 }
 
 void Tauler::Obrir_ultima(int col){
@@ -82,19 +76,17 @@ void Tauler::Obrir_ultima(int col){
 }
 
 void Tauler::Restaurar_Cartes(){
-	a_mida[a_col_rest-1]+=a_quantitat;
+	//a_mida[a_col_rest-1]+=a_quantitat;
 }
 
-void Tauler::NumCartesColumna(int col, int &obertes, int &tancades){
+void Tauler::NumCartesColumna(int col, int &obertes, int &tancades)const{
 	obertes=tancades=0;
 	for(int i=0;i<a_mida[col-1];i++){
 		if(a_mat[col-1][i].esoberta())obertes++;
 		else tancades++;
-		/*
-		bool temp=a_mat[col-1][i].esoberta();
+		/*bool temp=a_mat[col-1][i].esoberta();
 		obertes+=temp;
-		tancades+=!temp;
-		*/
+		tancades+=!temp;*/
 	}
 }
 
@@ -103,8 +95,8 @@ void Tauler::Processar_origen(Posicio_Carta origen, Carta c){
 		if(c.esoberta()){
 			a_agafades[0]=c;
 			a_quantitat=1;
-			a_col_rest=-1;
-			a_pila_rest=origen.pila;
+			//a_col_rest=-1;
+			//a_pila_rest=origen.pila;
 		}
 	}
 	else{
@@ -115,7 +107,7 @@ void Tauler::Processar_origen(Posicio_Carta origen, Carta c){
 				a_agafades[comptador++]=a_mat[colbona][i];
 			//a_mida[colbona]-=comptador;
 			a_quantitat=comptador;
-			a_col_rest=colbona+1;
+			//a_col_rest=colbona+1;
 		}		
 	}
 }

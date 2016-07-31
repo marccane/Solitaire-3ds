@@ -1,13 +1,10 @@
-#include <cstdlib>
 #include "Baralla.h"
 #include "Carta.h"
 #include <sf2d.h>
 
-const int CARTES_MAX=52;
+const int CARTES_MAX=52, ITERACIONS=1000;
 
-unsigned Baralla::a_llavor = 1;
-
-Baralla::Baralla(int llavor, int passos, sf2d_texture *p[]){
+Baralla::Baralla(int llavor, sf2d_texture *p[]){
     const char vecpals[]={'P','c','d','T'};
     char vecvalors[13];
     Carta::CrearVectorValors(vecvalors);
@@ -18,7 +15,7 @@ Baralla::Baralla(int llavor, int passos, sf2d_texture *p[]){
 			comptador++;
 		}
     iniLlavor(llavor);
-    for(int i=0;i<passos;i++)
+    for(int i=0;i<ITERACIONS;i++)
         a_baralla[aleatori(CARTES_MAX)].Intercanviar(a_baralla[aleatori(CARTES_MAX)]);
 }
 
@@ -27,9 +24,7 @@ Carta Baralla::Get_Carta(int index)const{
 }
 
 void Baralla::iniLlavor(int llavor){
-    a_llavor = abs(llavor);
-    if (a_llavor == 0)
-        a_llavor++;
+    a_llavor = llavor;
 }
 
 int Baralla::aleatori(int max){

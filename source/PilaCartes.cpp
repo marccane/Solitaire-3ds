@@ -1,5 +1,4 @@
 #include "PilaCartes.h"
-#include "Carta.h"
 
 // Pre: --; Post: pila buida
 // COST: O(1)
@@ -34,13 +33,11 @@ bool PilaCartes::buida() const{
 Carta PilaCartes::cim() const{
     //if(a_cim==NULL)cout<<"ERROR! LA PILA ES BUIDA!, posa els checks on toquen!"<<endl;
     if(!buida())return a_cim->valor;
-	else {
+	else { //per anar bé aixo no s'hauria dexecutar mai
 		Carta temp;
-		temp.Set_obrir(false);
-		return temp;
+		return temp; 
 	}
 }
-
 
 // MODIFICADORS -----------------------------------------------
 // Pre: --; Post: ha afegit s dalt de la pila

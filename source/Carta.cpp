@@ -1,5 +1,4 @@
 #include "Carta.h"
-#include <sf2d.h>
 #include "Constants.h"
 
 Carta::Carta(){
